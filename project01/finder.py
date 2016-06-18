@@ -2,27 +2,27 @@
 # -*- coding: utf-8 -*-
 
 '''
-Read words from wiki dumps data 
+Read words from wiki dumps data
 (https://dumps.wikimedia.org/jawiki/latest/)
 Save the word which is not in the mecab-ipadic-neologd
- and its yomi to txt file 
+ and its yomi to txt file
 (https://github.com/neologd/mecab-ipadic-neologd)
 '''
 
-__author__ = 'Spike'
 
 from collections import deque
 import MeCab
 
-class newWordFinder(object):
+
+class NewWordFinder(object):
     """Class used to find a new word and save it to file:
 
     Usage:
-        if newWordFinder.is_new_word(word):
-            newWordFinder.save('somefile.txt')
+        if NewWordFinder.is_new_word(word):
+            NewWordFinder.save('somefile.txt')
 
         The attr 'window_size'
-        sets the length of a double-ended queue, which maintains the 
+        sets the length of a double-ended queue, which maintains the
         lastest k words before the current word, inorder to prevent
         from adding duplicates into files.
             e.x:
@@ -35,9 +35,9 @@ class newWordFinder(object):
             ->  Bye_Bye
                 Bye_Bye_(アルバム)
                 Bye_Bye_(風の曲)
-    
+
     Example:
-        >>> nwf = newWordFinder()
+        >>> nwf = NewWordFinder()
         >>> filename = 'test.txt'
         >>> word = '桜流し'
         >>> if nwf.is_new_word(word): nwf.save2file(filename)
@@ -45,6 +45,8 @@ class newWordFinder(object):
         >>> if nwf.is_new_word(word): nwf.save2file(filename)
         A new word:'辞書にあるわけない単語' added!
     """
+    __author__ = 'Spike'
+
     def __init__(self, window_size=10):
         self._tagger = MeCab.Tagger('-Ochasen')
         self._window_size = window_size
@@ -54,13 +56,13 @@ class newWordFinder(object):
 
     def is_new_word(self, word):
         self._curword = self._clean_word(word)
-        
+
         # I don't like entity which is too long
         if len(self._curword) > 15:
             return False
-        
+
         if (self._in_white_list() and self._not_in_black_list() and
-            self._not_in_dict() and self._not_duplicated()):
+                self._not_in_dict() and self._not_duplicated()):
             self._q.append(self._curword)
             if len(self._q) > self._window_size:
                 self._q.popleft()
@@ -72,7 +74,7 @@ class newWordFinder(object):
         with open(filename, 'a', encoding='utf-8') as f:
             f.write(self._curword + '\t' + yomi + '\n')
         self._preword = self._curword
-        # print("A new word:'{0}' added!".format(self._curword))
+        print("A new word:'{0}' added!".format(self._curword))
 
     def _clean_word(self, word):
         word = word.strip()
@@ -88,7 +90,7 @@ class newWordFinder(object):
     def _get_yomi(self):
         total_yomi = ''
 
-        # For every line in parsed data, 
+        # For every line in parsed data,
         # find the columns of yomi(col1) and part of speech(col3)
         for part in self._parsed:
             attributes = part.split('\t')
@@ -111,7 +113,6 @@ class newWordFinder(object):
     def _not_duplicated(self):
         # Since the wiki dumpy
         return self._curword != self._preword and self._curword not in self._q
-
 
     def _in_white_list(self):
         initial = self._curword[0]
@@ -140,13 +141,13 @@ class newWordFinder(object):
         return True
 
 
-nwf = newWordFinder()
+nwf = NewWordFinder()
 
-with open('jawiki-latest-all-titles', 'r', encoding='utf-8') as f:
-    for word in f:
-        if nwf.is_new_word(word):
-            nwf.save2list('new_words.txt')
+# with open('jawiki-latest-all-titles', 'r', encoding='utf-8') as f:
+#     for word in f:
+#         if nwf.is_new_word(word):
+#             nwf.save2list('new_words.txt')
 
-# if __name__ == '__main__':
-#     import doctest
-#     doctest.testmod()
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
