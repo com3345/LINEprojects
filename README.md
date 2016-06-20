@@ -1,6 +1,14 @@
 # LINEprojects
 ---
 
+### 0. Introduction
+
+Environment:
+
++ Python 3.5.1
++ mecab-python3 0.7
++ Scrapy 1.0.0
+
 
 ### 1. NEologd にまだ含まれていない単語を収集するプログラムおよびデータを作成してください
     > /project01
